@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>MIRROR SIDE APPLICATION</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script>
+        function refreshWeather() {
+			var t, h;
+            $.ajax({
+                url: "http://api.wunderground.com/api/5d40a2aaf91fd1b2/forecast/conditions/q/Korea/Seoul.json",
+                dataType: "jsonp",
+                success: function(data) {
+                    console.log(data);
+                    document.getElementById("weather").innerHTML = data.current_observation.weather;
+					t = data.current_observation.feelslike_c * 1;
+					h = parseFloat(data.current_observation.relative_humidity);
+
+					document.getElementById('t').innerHTML = t;
+					document.getElementById('h').innerHTML = h;
+                }
+            });
+        }
+
+		function refreshComment() {
+			$.ajax({
+				url: "http://direct.cubesoft.asia/feelback/getSavedComment.php",
+				success: function(data) {
+					document.getElementById('feedback_comment').innerHTML = data;
+				}
+			});
+		}
+
+        $(document).ready(function() {
+            refreshWeather();
+
+            setInterval(function() {
+				refreshComment();
+
+                var d = new Date();
+                var n = (d.getTime()+"").substr(0, 10) * 1;
+
+                var date = new Date(n*1000);
+                var hours = date.getHours();
+                var minutes = "0" + date.getMinutes();
+                var formattedTime = hours + ':' + minutes.substr(-2);
+
+                var months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+                var year = date.getFullYear();
+                var month = months[date.getMonth()];
+                var dates = date.getDate();
+
+                document.getElementById('clock').innerHTML = formattedTime;
+                document.getElementById('date').innerHTML = year + "." + month + "." + dates;
+            }, 1000);
+        });
+    </script>
+</head>
+
+<body onClick="refreshWeather(); refreshComment();">
+    <div class="app">
+        <div id="clock">00:00</div>
+        <div id="date">1970.01.01</div>
+        <div id="weather">Clear</div>
+        <div id="arduino-data"><span id="t">29.5</span>° / <span id="h">50</span>%</div>
+
+        <div id="feedback">
+            <span id="feedback_label">Feedback</span><br />
+            <span id="feedback_comment"></span>
+        </div>
+    </div>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+</body>
+
+</html>
